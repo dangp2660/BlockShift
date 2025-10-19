@@ -213,7 +213,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!4 &93348128
 Transform:
   m_ObjectHideFlags: 0
@@ -223,7 +223,7 @@ Transform:
   m_GameObject: {fileID: 93348127}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 1.1, y: 0, z: -0.5}
+  m_LocalPosition: {x: 1.1, y: -0.1, z: -0.5}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -242,6 +242,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Block
   currentCell: {fileID: 0}
+  blockID: 0
 --- !u!65 &93348130
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -739,6 +740,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Block
   currentCell: {fileID: 0}
+  blockID: 0
 --- !u!65 &2045931280
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -825,7 +827,7 @@ Transform:
   m_GameObject: {fileID: 2045931278}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: -0.5}
+  m_LocalPosition: {x: 0, y: -0.1, z: -0.5}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -880,6 +882,18 @@ PrefabInstance:
       propertyPath: m_Size.z
       value: 20
       objectReference: {fileID: 0}
+    - target: {fileID: 115643885385382055, guid: ed1d8db85de9da94eb4a123a07805d34, type: 3}
+      propertyPath: x
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 853350690309924293, guid: ed1d8db85de9da94eb4a123a07805d34, type: 3}
+      propertyPath: x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 1549636858583611043, guid: ed1d8db85de9da94eb4a123a07805d34, type: 3}
+      propertyPath: x
+      value: 2
+      objectReference: {fileID: 0}
     - target: {fileID: 1786200980315441301, guid: ed1d8db85de9da94eb4a123a07805d34, type: 3}
       propertyPath: m_Size.z
       value: 20
@@ -887,6 +901,10 @@ PrefabInstance:
     - target: {fileID: 2143208905780388708, guid: ed1d8db85de9da94eb4a123a07805d34, type: 3}
       propertyPath: m_TagString
       value: GridCell
+      objectReference: {fileID: 0}
+    - target: {fileID: 2977772202525131623, guid: ed1d8db85de9da94eb4a123a07805d34, type: 3}
+      propertyPath: x
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 3199106366414247384, guid: ed1d8db85de9da94eb4a123a07805d34, type: 3}
       propertyPath: m_TagString
@@ -924,6 +942,14 @@ PrefabInstance:
       propertyPath: m_Size.z
       value: 20
       objectReference: {fileID: 0}
+    - target: {fileID: 4962349367931021353, guid: ed1d8db85de9da94eb4a123a07805d34, type: 3}
+      propertyPath: x
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 5511751024454283819, guid: ed1d8db85de9da94eb4a123a07805d34, type: 3}
+      propertyPath: x
+      value: 2
+      objectReference: {fileID: 0}
     - target: {fileID: 5763251796110597502, guid: ed1d8db85de9da94eb4a123a07805d34, type: 3}
       propertyPath: m_Size.z
       value: 20
@@ -943,6 +969,10 @@ PrefabInstance:
     - target: {fileID: 7160728851819341511, guid: ed1d8db85de9da94eb4a123a07805d34, type: 3}
       propertyPath: m_TagString
       value: GridCell
+      objectReference: {fileID: 0}
+    - target: {fileID: 7276100886348689067, guid: ed1d8db85de9da94eb4a123a07805d34, type: 3}
+      propertyPath: x
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 7937383614745910840, guid: ed1d8db85de9da94eb4a123a07805d34, type: 3}
       propertyPath: m_TagString
@@ -999,6 +1029,10 @@ PrefabInstance:
     - target: {fileID: 8826852058693323931, guid: ed1d8db85de9da94eb4a123a07805d34, type: 3}
       propertyPath: m_Size.z
       value: 20
+      objectReference: {fileID: 0}
+    - target: {fileID: 8839922460469289927, guid: ed1d8db85de9da94eb4a123a07805d34, type: 3}
+      propertyPath: x
+      value: 3
       objectReference: {fileID: 0}
     - target: {fileID: 9177368635192871773, guid: ed1d8db85de9da94eb4a123a07805d34, type: 3}
       propertyPath: m_Size.z

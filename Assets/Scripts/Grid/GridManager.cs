@@ -18,10 +18,10 @@ public class GridManager : MonoBehaviour
 
     public void LoadExistingGrid()
     {
-        GridCell[] allCells = FindObjectsOfType<GridCell>();
+        GridCell[] allCells = FindObjectsByType<GridCell>(FindObjectsSortMode.None);
         if (allCells.Length == 0)
         {
-            Debug.LogWarning("Không có GridCell nào trong scene!");
+            Debug.LogWarning("There are no GridCells in the scene!");
             return;
         }
 

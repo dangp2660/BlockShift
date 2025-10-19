@@ -15,7 +15,7 @@ public class Block : MonoBehaviour
     public void findCurrentCell()
     {
         RaycastHit hit;
-        if (Physics.Raycast(transform.position + Vector3.up * 0.5f, Vector3.down, out hit)) ;
+        if (Physics.Raycast(transform.position + Vector3.up * 0.5f, Vector3.down, out hit))
         {
             GridCell cell = hit.collider.gameObject.GetComponent<GridCell>();
             if (cell != null)
