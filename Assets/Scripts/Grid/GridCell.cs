@@ -10,6 +10,6 @@ public class GridCell : MonoBehaviour
     private void OnDrawGizmos()
     {
         Gizmos.color = isOccupied ? Color.red : Color.green;
-        Gizmos.DrawWireCube(transform.position, Vector3.one * 0.9f);
+        Gizmos.DrawWireCube(transform.position, Vector3.one);
     }
 }

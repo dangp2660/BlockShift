@@ -1,3 +1,4 @@
+using Unity.VisualScripting;
 using UnityEngine;
 
 [RequireComponent(typeof(BoxCollider))]
@@ -22,10 +23,11 @@ public class Block : MonoBehaviour
                 {
                     currentCell = cell;
                     cell.isOccupied = true;
-                    cell.currentCube = this.gameObject;
+                    cell.currentCube = gameObject;
                     Debug.Log($"{name} in cell {cell.x}-{cell.y}");
                 }
             }
         }
     }
+
 }
