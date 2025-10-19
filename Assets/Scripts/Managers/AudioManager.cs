@@ -35,13 +35,13 @@ public class AudioManager : MonoBehaviour
         source.loop = true;
         source.volume = 0.8f;
         source.Play();
-    }
+    }//playBackGround
 
     private void playSFX(AudioClip clip)
     {
         if (clip == null) return;
         AudioSource.PlayClipAtPoint(clip, Camera.main.transform.transform.position, 1f);
-    }
+    }//playSFX
     public void playClickBlock() => playSFX(clickBlock);
     public void playDestroyBlock() => playSFX(destroyBlock);
 }

@@ -5,8 +5,9 @@ using UnityEngine;
 public class Block : MonoBehaviour
 {
     public GridCell currentCell;
+    public int blockID;
     // Start is called once before the first execution of Update after the MonoBehaviour is created
-    void Start()
+    private void Update()
     {
         findCurrentCell();
     }
@@ -28,6 +29,21 @@ public class Block : MonoBehaviour
                 }
             }
         }
+    }//findCurrentCell
+
+    private void OnDestroy()
+    {
+        if (currentCell != null)
+        {
+            currentCell.isOccupied = false;
+        }
     }
 
+    private void OnDisable()
+    {
+        if (currentCell != null)
+        {
+            currentCell.isOccupied = false;
+        }
+    }
 }

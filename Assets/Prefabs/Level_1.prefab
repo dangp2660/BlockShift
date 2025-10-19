@@ -80,7 +80,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: de9f3c1ec26ba7b479af18743ebe30df, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::GridCell
-  x: 0
+  x: 1
   y: 0
   isOccupied: 0
   currentCube: {fileID: 0}
@@ -275,7 +275,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: de9f3c1ec26ba7b479af18743ebe30df, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::GridCell
-  x: 2
+  x: 3
   y: 2
   isOccupied: 0
   currentCube: {fileID: 0}
@@ -887,7 +887,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: de9f3c1ec26ba7b479af18743ebe30df, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::GridCell
-  x: 2
+  x: 3
   y: 1
   isOccupied: 0
   currentCube: {fileID: 0}
@@ -971,7 +971,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: de9f3c1ec26ba7b479af18743ebe30df, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::GridCell
-  x: 1
+  x: 2
   y: 2
   isOccupied: 0
   currentCube: {fileID: 0}
@@ -1055,7 +1055,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: de9f3c1ec26ba7b479af18743ebe30df, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::GridCell
-  x: 1
+  x: 2
   y: 1
   isOccupied: 0
   currentCube: {fileID: 0}
@@ -1361,7 +1361,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: de9f3c1ec26ba7b479af18743ebe30df, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::GridCell
-  x: 0
+  x: 1
   y: 2
   isOccupied: 0
   currentCube: {fileID: 0}
@@ -1667,7 +1667,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: de9f3c1ec26ba7b479af18743ebe30df, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::GridCell
-  x: 2
+  x: 3
   y: 0
   isOccupied: 0
   currentCube: {fileID: 0}
@@ -1751,7 +1751,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: de9f3c1ec26ba7b479af18743ebe30df, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::GridCell
-  x: 0
+  x: 1
   y: 1
   isOccupied: 0
   currentCube: {fileID: 0}
@@ -1946,7 +1946,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: de9f3c1ec26ba7b479af18743ebe30df, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::GridCell
-  x: 1
+  x: 2
   y: 0
   isOccupied: 0
   currentCube: {fileID: 0}
@@ -2090,17 +2090,17 @@ Transform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
+  - {fileID: 7351781849139706154}
   - {fileID: 3840098834864307583}
   - {fileID: 6316297958683382485}
-  - {fileID: 7351781849139706154}
   - {fileID: 2923258709676088965}
   - {fileID: 7748529213867110721}
   - {fileID: 8951565857556006491}
   - {fileID: 3137581544545984510}
   - {fileID: 8492644112784727890}
   - {fileID: 531179045649437997}
-  - {fileID: 284644041577864632}
   - {fileID: 3539724788278022032}
+  - {fileID: 284644041577864632}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &8769483843331727865
@@ -2183,7 +2183,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: de9f3c1ec26ba7b479af18743ebe30df, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::GridCell
-  x: 2
+  x: 4
   y: 1
   isOccupied: 0
   currentCube: {fileID: 0}
