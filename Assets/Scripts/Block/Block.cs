@@ -1,3 +1,4 @@
+using System.Collections;
 using Unity.VisualScripting;
 using UnityEngine;
 
@@ -6,6 +7,7 @@ public class Block : MonoBehaviour
 {
     public GridCell currentCell;
     public int blockID;
+    public bool isPopping = false;
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     private void Update()
     {
@@ -46,4 +48,26 @@ public class Block : MonoBehaviour
             currentCell.isOccupied = false;
         }
     }
+
+    public void PlayPopEffect()
+    {
+        if (this == null || isPopping) return;
+        isPopping = true;
+        StartCoroutine(PopAnimation());
+    }//PlayPopEffect
+
+    private IEnumerator PopAnimation()
+    {
+        Vector3 originScale =  transform.localScale;
+        float time = 0f;
+        while (time < 0.25f)
+        {
+            time += Time.deltaTime;
+            float s = 1 + Mathf.Clamp01(time * Mathf.PI * 4) *0.2f;
+            transform.localScale = originScale * s;
+            yield return null;
+        }
+        Debug.Log($"Block at {currentCell.x}-{currentCell.y} is destroyed");
+        Destroy(gameObject);
+    }//PopAnimation
 }
