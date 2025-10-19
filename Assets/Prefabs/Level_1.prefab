@@ -83,7 +83,7 @@ MonoBehaviour:
   x: 0
   y: 0
   isOccupied: 0
-  currentCube: {fileID: 8766304463762568452, guid: 3a63b40e4deca3c4a8283610a9f6edc4, type: 3}
+  currentCube: {fileID: 0}
 --- !u!1 &853263699577480211
 GameObject:
   m_ObjectHideFlags: 0
@@ -278,7 +278,7 @@ MonoBehaviour:
   x: 2
   y: 2
   isOccupied: 0
-  currentCube: {fileID: 8766304463762568452, guid: 3a63b40e4deca3c4a8283610a9f6edc4, type: 3}
+  currentCube: {fileID: 0}
 --- !u!1 &2350908056450270508
 GameObject:
   m_ObjectHideFlags: 0
@@ -695,7 +695,7 @@ MonoBehaviour:
   x: 0
   y: 1
   isOccupied: 0
-  currentCube: {fileID: 8766304463762568452, guid: 3a63b40e4deca3c4a8283610a9f6edc4, type: 3}
+  currentCube: {fileID: 0}
 --- !u!1 &3463562951206860647
 GameObject:
   m_ObjectHideFlags: 0
@@ -890,7 +890,7 @@ MonoBehaviour:
   x: 2
   y: 1
   isOccupied: 0
-  currentCube: {fileID: 8766304463762568452, guid: 3a63b40e4deca3c4a8283610a9f6edc4, type: 3}
+  currentCube: {fileID: 0}
 --- !u!1 &3689667456549392386
 GameObject:
   m_ObjectHideFlags: 0
@@ -974,7 +974,7 @@ MonoBehaviour:
   x: 1
   y: 2
   isOccupied: 0
-  currentCube: {fileID: 8766304463762568452, guid: 3a63b40e4deca3c4a8283610a9f6edc4, type: 3}
+  currentCube: {fileID: 0}
 --- !u!1 &3821021745163876815
 GameObject:
   m_ObjectHideFlags: 0
@@ -1058,7 +1058,7 @@ MonoBehaviour:
   x: 1
   y: 1
   isOccupied: 0
-  currentCube: {fileID: 8766304463762568452, guid: 3a63b40e4deca3c4a8283610a9f6edc4, type: 3}
+  currentCube: {fileID: 0}
 --- !u!1 &3963001034089461312
 GameObject:
   m_ObjectHideFlags: 0
@@ -1364,7 +1364,7 @@ MonoBehaviour:
   x: 0
   y: 2
   isOccupied: 0
-  currentCube: {fileID: 8766304463762568452, guid: 3a63b40e4deca3c4a8283610a9f6edc4, type: 3}
+  currentCube: {fileID: 0}
 --- !u!1 &4698358982193850506
 GameObject:
   m_ObjectHideFlags: 0
@@ -1670,7 +1670,7 @@ MonoBehaviour:
   x: 2
   y: 0
   isOccupied: 0
-  currentCube: {fileID: 8766304463762568452, guid: 3a63b40e4deca3c4a8283610a9f6edc4, type: 3}
+  currentCube: {fileID: 0}
 --- !u!1 &7160728851819341511
 GameObject:
   m_ObjectHideFlags: 0
@@ -1754,7 +1754,7 @@ MonoBehaviour:
   x: 0
   y: 1
   isOccupied: 0
-  currentCube: {fileID: 8766304463762568452, guid: 3a63b40e4deca3c4a8283610a9f6edc4, type: 3}
+  currentCube: {fileID: 0}
 --- !u!1 &7212754046221457444
 GameObject:
   m_ObjectHideFlags: 0
@@ -1949,7 +1949,7 @@ MonoBehaviour:
   x: 1
   y: 0
   isOccupied: 0
-  currentCube: {fileID: 8766304463762568452, guid: 3a63b40e4deca3c4a8283610a9f6edc4, type: 3}
+  currentCube: {fileID: 0}
 --- !u!1 &8241328587613252477
 GameObject:
   m_ObjectHideFlags: 0
@@ -2186,4 +2186,4 @@ MonoBehaviour:
   x: 2
   y: 1
   isOccupied: 0
-  currentCube: {fileID: 8766304463762568452, guid: 3a63b40e4deca3c4a8283610a9f6edc4, type: 3}
+  currentCube: {fileID: 0}
