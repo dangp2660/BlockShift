@@ -125,5 +125,5 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Block
   currentCell: {fileID: 0}
-  blockID: 0
+  blockMaterialData: {fileID: 0}
   isPopping: 0

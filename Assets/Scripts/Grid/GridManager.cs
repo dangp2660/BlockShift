@@ -68,7 +68,7 @@ public class GridManager : MonoBehaviour
                 if(cell == null || !cell.isOccupied) continue;
                 Block block = cell.currentCube.GetComponent<Block>();
                 if(block == null || visted[x,y] || block.isPopping) continue;
-                List<Block> connected = FloodFill(x, y, block.blockID, visted);
+                List<Block> connected = FloodFill(x, y, block.blockMaterialData.colorID, visted);
                 if(connected.Count >= 2)
                 {
                     StartCoroutine(MarchAndPop(connected));
@@ -102,7 +102,7 @@ public class GridManager : MonoBehaviour
 
             Block block = cell.currentCube?.GetComponent<Block>();
 
-            if(block == null || block.blockID != colorId) continue;
+            if(block == null || block.blockMaterialData.colorID != colorId) continue;
 
             visited[x, y] = true;
             result.Add(block);

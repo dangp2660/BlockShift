@@ -6,7 +6,7 @@ using UnityEngine;
 public class Block : MonoBehaviour
 {
     public GridCell currentCell;
-    public int blockID;
+    public BlockMaterialData blockMaterialData;
     public bool isPopping = false;
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     private void Update()
@@ -70,4 +70,14 @@ public class Block : MonoBehaviour
         Debug.Log($"Block at {currentCell.x}-{currentCell.y} is destroyed");
         Destroy(gameObject);
     }//PopAnimation
+
+    public void SetMaterialBlock(BlockMaterialData data)
+    {
+        blockMaterialData = data;
+        Renderer renderer = gameObject.GetComponent<Renderer>();
+        if( renderer != null )
+        {
+            renderer.material = data.material;
+        }
+    }//SetMaterialBlock
 }
