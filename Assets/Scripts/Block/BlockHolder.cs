@@ -12,22 +12,32 @@ public class BlockHolder : MonoBehaviour
     public Vector2Int[] childOffsets;
 
     private readonly List<Block> childBlocks = new List<Block>();
-    public GridCell parentCell; 
+    public GridCell parentCell;
 
     void Start()
     {
         GenerateBlocks();
 
         if (parentCell != null)
+        {
             AssignToCell(parentCell);
+        }
     }
 
     public void GenerateBlocks()
     {
-        foreach (Transform c in transform)
+        if (blockPrefab == null)
         {
-            if (Application.isPlaying) Destroy(c.gameObject);
-            else DestroyImmediate(c.gameObject);
+            Debug.LogError("Block prefab is missing!");
+            return;
+        }
+
+        foreach (Transform child in transform)
+        {
+            if (Application.isPlaying)
+                Destroy(child.gameObject);
+            else
+                DestroyImmediate(child.gameObject);
         }
         childBlocks.Clear();
 
@@ -36,6 +46,20 @@ public class BlockHolder : MonoBehaviour
 
         float spacing = cellSize * 0.25f;
         float baseScale = cellSize * 0.45f;
+        float maxScale = cellSize * 0.95f;
+
+        int minX = int.MaxValue, maxX = int.MinValue;
+        int minY = int.MaxValue, maxY = int.MinValue;
+        foreach (var o in childOffsets)
+        {
+            if (o.x < minX) minX = o.x;
+            if (o.x > maxX) maxX = o.x;
+            if (o.y < minY) minY = o.y;
+            if (o.y > maxY) maxY = o.y;
+        }
+
+        int widthCount = maxX - minX + 1;
+        int heightCount = maxY - minY + 1;
 
         float avgX = 0, avgY = 0;
         foreach (var o in childOffsets) { avgX += o.x; avgY += o.y; }
@@ -44,18 +68,40 @@ public class BlockHolder : MonoBehaviour
 
         foreach (var offset in childOffsets)
         {
-            Vector3 pos = new Vector3(
+            Vector3 localPos = new Vector3(
                 (offset.x - avgX) * spacing * 2,
                 (offset.y - avgY) * spacing * 2,
                 0);
-            GameObject go = Instantiate(blockPrefab, transform);
-            go.transform.localPosition = pos;
-            go.transform.localScale = Vector3.one * baseScale;
-            childBlocks.Add(go.GetComponent<Block>());
+
+            GameObject newBlock = Instantiate(blockPrefab, transform);
+            newBlock.transform.localPosition = localPos;
+            newBlock.transform.localRotation = Quaternion.identity;
+            newBlock.transform.localScale = new Vector3(baseScale, baseScale, 1);
+
+            Block blockComp = newBlock.GetComponent<Block>();
+            if (blockComp == null) blockComp = newBlock.AddComponent<Block>();
+
+            childBlocks.Add(blockComp);
         }
 
+        float totalWidth = widthCount * baseScale + (widthCount - 1) * spacing * 2;
+        float totalHeight = heightCount * baseScale + (heightCount - 1) * spacing * 2;
+
+        float fitX = totalWidth < (cellSize * 0.9f) ? (cellSize * 0.9f) / totalWidth : 1f;
+        float fitY = totalHeight < (cellSize * 0.9f) ? (cellSize * 0.9f) / totalHeight : 1f;
+
+        fitX = Mathf.Min(fitX, maxScale / baseScale);
+        fitY = Mathf.Min(fitY, maxScale / baseScale);
+
+        foreach (var block in childBlocks)
+        {
+            Vector3 s = block.transform.localScale;
+            s.x *= fitX;
+            s.y *= fitY;
+            block.transform.localScale = s;
+        }
         SpawnUniqueBlocks();
-    }
+    }//GenerateBlocks
 
     public void SpawnUniqueBlocks()
     {
@@ -82,6 +128,43 @@ public class BlockHolder : MonoBehaviour
         foreach (var block in childBlocks)
         {
             block.findCurrentCell(cell);
+        }
+
+        // 🔹 Gọi logic chia subcell
+        AssignSubCells();
+    }
+
+    // ============================================================
+    // 🔸 Thêm đoạn này để chia subcell linh hoạt 4 vị trí (2x2)
+    // ============================================================
+    private void AssignSubCells()
+    {
+        if (childBlocks == null || childBlocks.Count == 0 || parentCell == null)
+            return;
+
+        // Danh sách 4 vị trí subcell trong 1 ô
+        List<Vector2Int> allSubCells = new List<Vector2Int>()
+        {
+            new Vector2Int(0,0),
+            new Vector2Int(1,0),
+            new Vector2Int(0,1),
+            new Vector2Int(1,1)
+        };
+
+        int blockCount = childBlocks.Count;
+        int baseCount = allSubCells.Count / blockCount;
+        int remainder = allSubCells.Count % blockCount;
+        int index = 0;
+
+        for (int i = 0; i < blockCount; i++)
+        {
+            int take = baseCount + (i < remainder ? 1 : 0);
+            List<Vector2Int> assign = new List<Vector2Int>();
+
+            for (int j = 0; j < take && index < allSubCells.Count; j++, index++)
+                assign.Add(allSubCells[index]);
+
+            childBlocks[i].subCellIn = assign;
         }
     }
 }

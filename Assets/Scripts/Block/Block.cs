@@ -1,4 +1,5 @@
 ﻿using System.Collections;
+using System.Collections.Generic;
 using UnityEngine;
 
 [RequireComponent(typeof(BoxCollider))]
@@ -8,24 +9,24 @@ public class Block : MonoBehaviour
     public BlockMaterialData blockMaterialData;
     public bool isPopping = false;
     public LayerMask gridLayer;
+    public List<Vector2Int> subCellIn;
 
     public void findCurrentCell(GridCell cell)
     {
         if (cell == null) return;
 
-        // Nếu block đang có cell cũ → giải phóng
         if (currentCell != null && currentCell != cell)
         {
             currentCell.isOccupied = false;
-            currentCell.currentCube = null;
+            currentCell.currentHolder = null;
         }
 
-        // Gán cell mới
+
         if (!cell.isOccupied)
         {
             currentCell = cell;
             cell.isOccupied = true;
-            cell.currentCube = gameObject;
+            cell.currentHolder = gameObject.GetComponent<BlockHolder>();
         }
     }
 
@@ -34,7 +35,7 @@ public class Block : MonoBehaviour
         if (currentCell != null)
         {
             currentCell.isOccupied = false;
-            currentCell.currentCube = null;
+            currentCell.currentHolder = null;
         }
     }
 
@@ -43,7 +44,7 @@ public class Block : MonoBehaviour
         if (currentCell != null)
         {
             currentCell.isOccupied = false;
-            currentCell.currentCube = null;
+            currentCell.currentHolder = null;
         }
     }
 
