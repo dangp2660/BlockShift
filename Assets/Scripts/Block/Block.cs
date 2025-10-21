@@ -1,5 +1,4 @@
-using System.Collections;
-using Unity.VisualScripting;
+﻿using System.Collections;
 using UnityEngine;
 
 [RequireComponent(typeof(BoxCollider))]
@@ -8,36 +7,34 @@ public class Block : MonoBehaviour
     public GridCell currentCell;
     public BlockMaterialData blockMaterialData;
     public bool isPopping = false;
-    // Start is called once before the first execution of Update after the MonoBehaviour is created
-    private void Update()
-    {
-        findCurrentCell();
-    }
+    public LayerMask gridLayer;
 
-    public void findCurrentCell()
+    public void findCurrentCell(GridCell cell)
     {
-        RaycastHit hit;
-        if (Physics.Raycast(transform.position + Vector3.up * 0.7f, Vector3.down, out hit))
+        if (cell == null) return;
+
+        // Nếu block đang có cell cũ → giải phóng
+        if (currentCell != null && currentCell != cell)
         {
-            GridCell cell = hit.collider.gameObject.GetComponent<GridCell>();
-            if (cell != null)
-            {
-                if (!cell.isOccupied)
-                {
-                    currentCell = cell;
-                    cell.isOccupied = true;
-                    cell.currentCube = gameObject;
-                    Debug.Log($"{name} in cell {cell.x}-{cell.y}");
-                }
-            }
+            currentCell.isOccupied = false;
+            currentCell.currentCube = null;
         }
-    }//findCurrentCell
+
+        // Gán cell mới
+        if (!cell.isOccupied)
+        {
+            currentCell = cell;
+            cell.isOccupied = true;
+            cell.currentCube = gameObject;
+        }
+    }
 
     private void OnDestroy()
     {
         if (currentCell != null)
         {
             currentCell.isOccupied = false;
+            currentCell.currentCube = null;
         }
     }
 
@@ -46,6 +43,7 @@ public class Block : MonoBehaviour
         if (currentCell != null)
         {
             currentCell.isOccupied = false;
+            currentCell.currentCube = null;
         }
     }
 
@@ -54,30 +52,28 @@ public class Block : MonoBehaviour
         if (this == null || isPopping) return;
         isPopping = true;
         StartCoroutine(PopAnimation());
-    }//PlayPopEffect
+    }
 
     private IEnumerator PopAnimation()
     {
-        Vector3 originScale =  transform.localScale;
+        Vector3 originScale = transform.localScale;
         float time = 0f;
         while (time < 0.25f)
         {
             time += Time.deltaTime;
-            float s = 1 + Mathf.Clamp01(time * Mathf.PI * 4) *0.2f;
+            float s = 1 + Mathf.Sin(time * Mathf.PI * 2f) * 0.2f;
             transform.localScale = originScale * s;
             yield return null;
         }
-        Debug.Log($"Block at {currentCell.x}-{currentCell.y} is destroyed");
+        Debug.Log($"Block at {currentCell?.x}-{currentCell?.y} destroyed");
         Destroy(gameObject);
-    }//PopAnimation
+    }
 
     public void SetMaterialBlock(BlockMaterialData data)
     {
         blockMaterialData = data;
-        Renderer renderer = gameObject.GetComponent<Renderer>();
-        if( renderer != null )
-        {
+        var renderer = GetComponent<Renderer>();
+        if (renderer != null)
             renderer.material = data.material;
-        }
-    }//SetMaterialBlock
+    }
 }
