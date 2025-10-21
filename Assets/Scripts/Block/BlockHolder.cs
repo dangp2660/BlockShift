@@ -14,6 +14,13 @@ public class BlockHolder : MonoBehaviour
     private readonly List<Block> childBlocks = new List<Block>();
     public GridCell parentCell;
 
+    private List<Vector2Int> allSubCells = new List<Vector2Int>()
+        {
+            new Vector2Int(0,0),
+            new Vector2Int(1,0),
+            new Vector2Int(0,1),
+            new Vector2Int(1,1)
+        };
     void Start()
     {
         GenerateBlocks();
@@ -134,37 +141,86 @@ public class BlockHolder : MonoBehaviour
         AssignSubCells();
     }
 
-    // ============================================================
-    // 🔸 Thêm đoạn này để chia subcell linh hoạt 4 vị trí (2x2)
-    // ============================================================
+
     private void AssignSubCells()
     {
         if (childBlocks == null || childBlocks.Count == 0 || parentCell == null)
             return;
 
-        // Danh sách 4 vị trí subcell trong 1 ô
-        List<Vector2Int> allSubCells = new List<Vector2Int>()
-        {
-            new Vector2Int(0,0),
-            new Vector2Int(1,0),
-            new Vector2Int(0,1),
-            new Vector2Int(1,1)
-        };
-
         int blockCount = childBlocks.Count;
         int baseCount = allSubCells.Count / blockCount;
         int remainder = allSubCells.Count % blockCount;
         int index = 0;
-
+    
         for (int i = 0; i < blockCount; i++)
         {
             int take = baseCount + (i < remainder ? 1 : 0);
             List<Vector2Int> assign = new List<Vector2Int>();
-
+    
             for (int j = 0; j < take && index < allSubCells.Count; j++, index++)
                 assign.Add(allSubCells[index]);
-
+    
             childBlocks[i].subCellIn = assign;
+    
+            // Scale only for blocks with exactly two subcells
+            if (assign.Count == 2 && childOffsets.Length == 3)
+            {
+                Vector2Int a = assign[0];
+                Vector2Int b = assign[1];
+    
+                bool internalHorizontal = (a.y == b.y) && (Mathf.Abs(a.x - b.x) == 1);
+                bool internalVertical   = (a.x == b.x) && (Mathf.Abs(a.y - b.y) == 1);
+    
+                // Build set of other offsets from the overall layout (exclude this block's two subcells)
+                HashSet<Vector2Int> others = new HashSet<Vector2Int>(
+                    childOffsets != null ? childOffsets : new Vector2Int[] { Vector2Int.zero }
+                );
+                others.Remove(a);
+                others.Remove(b);
+    
+                // Does any of this block's subcells touch another offset vertically/horizontally?
+                bool touchesVerticalOther =
+                    others.Contains(new Vector2Int(a.x, a.y + 1)) ||
+                    others.Contains(new Vector2Int(a.x, a.y - 1)) ||
+                    others.Contains(new Vector2Int(b.x, b.y + 1)) ||
+                    others.Contains(new Vector2Int(b.x, b.y - 1));
+    
+                bool touchesHorizontalOther =
+                    others.Contains(new Vector2Int(a.x + 1, a.y)) ||
+                    others.Contains(new Vector2Int(a.x - 1, a.y)) ||
+                    others.Contains(new Vector2Int(b.x + 1, b.y)) ||
+                    others.Contains(new Vector2Int(b.x - 1, b.y));
+    
+                // Decide axis to scale
+                bool scaleY = false;
+                bool scaleX = false;
+    
+                if (touchesVerticalOther && !touchesHorizontalOther)
+                    scaleY = true;
+                else if (touchesHorizontalOther && !touchesVerticalOther)
+                    scaleX = true;
+                else if (touchesVerticalOther && touchesHorizontalOther)
+                    scaleY = true; // prefer Y in mixed (L-shape) case
+                else
+                {
+                    // Fallback to the internal pair axis
+                    if (internalHorizontal) scaleX = true;
+                    else if (internalVertical) scaleY = true;
+                }
+    
+                // Apply scale and axis-specific offset
+                Transform t = childBlocks[i].transform;
+                Vector3 s = t.localScale;
+                Vector3 lp = t.localPosition;
+    
+                // Double along the chosen axis, clamp to ~0.9 * cellSize
+                float target = cellSize * 0.9f;
+                if (scaleX) { s.x = Mathf.Min(s.x * 2f, target); lp.x = 0.06f; }
+                if (scaleY) { s.y = Mathf.Min(s.y * 2f, target); lp.y = 0.09f; }
+    
+                t.localScale = s;
+                t.localPosition = lp;
+            }
         }
     }
 }

@@ -353,7 +353,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!4 &722289172
 Transform:
   m_ObjectHideFlags: 0
@@ -386,9 +386,6 @@ MonoBehaviour:
   library: {fileID: 11400000, guid: ca5c00a6851aa4a4f8dee24ac97dd8bc, type: 2}
   childOffsets:
   - {x: 0, y: 0}
-  - {x: 0, y: 1}
-  - {x: 1, y: 1}
-  - {x: 1, y: 0}
   parentCell: {fileID: 1935529546}
 --- !u!1 &1153409505 stripped
 GameObject:
@@ -711,8 +708,8 @@ MonoBehaviour:
   childOffsets:
   - {x: 0, y: 0}
   - {x: 0, y: 1}
-  - {x: 1, y: 1}
   - {x: 1, y: 0}
+  - {x: 1, y: 1}
   parentCell: {fileID: 1680396681}
 --- !u!1 &2120121651
 GameObject:
