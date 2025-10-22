@@ -21,14 +21,11 @@ public class Block : MonoBehaviour
             currentCell.currentHolder = null;
         }
 
-        if (!cell.isOccupied)
-        {
-            currentCell = cell;
-            cell.isOccupied = true;
-            // Set holder from parent so GridManager can find children correctly
-            var holder = GetComponentInParent<BlockHolder>();
-            cell.currentHolder = holder;
-        }
+        // Always set holder and mark occupied
+        currentCell = cell;
+        cell.isOccupied = true;
+        var holder = GetComponentInParent<BlockHolder>();
+        cell.currentHolder = holder;
     }
 
     private void OnDestroy()
@@ -77,7 +74,6 @@ public class Block : MonoBehaviour
             transform.localScale = originScale * s;
             yield return null;
         }
-        Debug.Log($"Block at {currentCell?.x}-{currentCell?.y} destroyed");
         Destroy(gameObject);
     }
 

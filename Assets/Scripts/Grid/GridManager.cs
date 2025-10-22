@@ -9,17 +9,43 @@ public class GridManager : MonoBehaviour
 
     [Header("Match Settings")]
     public int minGroupSize = 2;
+    public bool debugMatchLogs = true;
 
     private bool[,] visitedSub;
+    private bool pendingMatchCheck = false;
+    private float pendingDelayTimer = 0f;
+    private bool isResolvingMatches = false;
+    private int activePopCoroutines = 0;
 
     void Awake()
     {
         LoadExistingGrid();
+        RequestMatchCheck(0f); // schedule initial check once
     }
 
     void Update()
     {
-        CheckForMatch();
+        // Only check when scheduled and not currently resolving animations/pops
+        if (pendingMatchCheck && !isResolvingMatches)
+        {
+            if (pendingDelayTimer > 0f)
+            {
+                pendingDelayTimer -= Time.deltaTime;
+            }
+            else
+            {
+                if (debugMatchLogs) Debug.Log("[GridManager] Running CheckForMatch");
+                pendingMatchCheck = false;
+                CheckForMatch();
+            }
+        }
+    }
+
+    public void RequestMatchCheck(float delay = 0f)
+    {
+        pendingMatchCheck = true;
+        pendingDelayTimer = delay;
+        if (debugMatchLogs) Debug.Log($"[GridManager] Scheduled match check in {delay:0.00}s");
     }
 
     /// <summary>
@@ -76,16 +102,19 @@ public class GridManager : MonoBehaviour
 
         int subW = width * 2;
         int subH = height * 2;
-            visitedSub = new bool[subW, subH];
+        visitedSub = new bool[subW, subH];
+
+        bool foundAnyGroup = false;
+        int groupsFound = 0;
+        List<int> groupSizes = new List<int>();
 
         for (int cx = 0; cx < width; cx++)
         {
             for (int cy = 0; cy < height; cy++)
             {
                 GridCell cell = gridCells[cx, cy];
-                if (cell == null || !cell.isOccupied || cell.currentHolder == null) continue;
+                if (cell == null || cell.currentHolder == null) continue;
 
-                // Scan 2x2 subcells inside this cell
                 for (int sx = 0; sx < 2; sx++)
                 {
                     for (int sy = 0; sy < 2; sy++)
@@ -101,12 +130,29 @@ public class GridManager : MonoBehaviour
 
                         if (connected.Count >= minGroupSize)
                         {
-                            foreach (var b in connected) b.isPopping = true;
+                            foundAnyGroup = true;
+                            groupsFound++;
+                            groupSizes.Add(connected.Count);
+                            if (debugMatchLogs)
+                                Debug.Log($"[GridManager] Match group color {start.blockMaterialData.colorID} size {connected.Count}");
+
+                            activePopCoroutines++;
+                            isResolvingMatches = true;
                             StartCoroutine(MergeAndPop(connected));
                         }
                     }
                 }
             }
+        }
+
+        if (!foundAnyGroup)
+        {
+            isResolvingMatches = false;
+            if (debugMatchLogs) Debug.Log("[GridManager] No groups found");
+        }
+        else
+        {
+
         }
     }
 
@@ -158,7 +204,19 @@ public class GridManager : MonoBehaviour
     private IEnumerator MergeAndPop(List<Block> blocks)
     {
         if (blocks == null || blocks.Count == 0)
+        {
+            activePopCoroutines = Mathf.Max(0, activePopCoroutines - 1);
+            if (activePopCoroutines == 0) { isResolvingMatches = false; }
             yield break;
+        }
+
+        HashSet<BlockHolder> affectedHolders = new HashSet<BlockHolder>();
+        foreach (var block in blocks)
+        {
+            if (block == null) continue;
+            var holder = block.GetComponentInParent<BlockHolder>();
+            if (holder != null) affectedHolders.Add(holder);
+        }
 
         // Tính trung tâm nhóm
         Vector3 center = Vector3.zero;
@@ -214,7 +272,18 @@ public class GridManager : MonoBehaviour
                 block.PlayPopEffect();
         }
 
-        Debug.Log($"Popped {blocks.Count} blocks!");
+        // Allow destroyed blocks to unregister from holders
+        yield return new WaitForSeconds(0.35f);
+
+        // Rescale all holders across the whole grid (not just affected ones)
+        RescaleAllHolders(true);
+
+        // Decrement and unblock further checks
+        activePopCoroutines = Mathf.Max(0, activePopCoroutines - 1);
+        isResolvingMatches = activePopCoroutines > 0 ? true : false;
+
+        // Unconditionally schedule a re-check for follow-up matches
+        RequestMatchCheck(0.1f);
     }
     private List<Block> FloodFillSubcells(int startGX, int startGY, int colorId)
     {
@@ -265,8 +334,89 @@ public class GridManager : MonoBehaviour
         int sy = gy % 2;
 
         GridCell cell = GetCell(cx, cy);
-        if (cell == null || !cell.isOccupied || cell.currentHolder == null) return null;
+        if (cell == null) return null;
 
-        return cell.currentHolder.GetBlockInSubCell(new Vector2Int(sx, sy));
+        // Prefer holder lookup, fallback to subCellBlocks when holder is missing
+        if (cell.currentHolder != null)
+            return cell.currentHolder.GetBlockInSubCell(new Vector2Int(sx, sy));
+
+        return cell.subCellBlocks[sx, sy];
+    }
+    private void RescaleAllHolders(bool animate)
+    {
+        if (gridCells == null) return;
+    
+        int width = gridCells.GetLength(0);
+        int height = gridCells.GetLength(1);
+    
+        for (int x = 0; x < width; x++)
+        {
+            for (int y = 0; y < height; y++)
+            {
+                var cell = gridCells[x, y];
+                var holder = cell?.currentHolder;
+                if (holder != null)
+                {
+                    holder.RecalculateChildScale(animate);
+                    holder.RecalculateTilt(animate);
+                }
+            }
+        }
+    }
+
+    public GridCell FindLowestFreeCellInColumn(int colX)
+    {
+        if (gridCells == null) return null;
+        int width = gridCells.GetLength(0);
+        int height = gridCells.GetLength(1);
+        if (colX < 0 || colX >= width) return null;
+
+        // y=0 is bottom; scan upwards for the first free cell
+        for (int y = 0; y < height; y++)
+        {
+            var cell = gridCells[colX, y];
+            if (cell != null && !cell.isOccupied)
+                return cell;
+        }
+        return null;
+    }
+
+    public bool TryPlaceAndSettle(BlockHolder holder, GridCell targetCell, float duration = 0.2f)
+    {
+        if (holder == null || targetCell == null || gridCells == null) return false;
+
+        // Choose destination: lowest free in target column; fallback to targetCell if free
+        var dest = FindLowestFreeCellInColumn(targetCell.x);
+        if (dest == null && !targetCell.isOccupied)
+            dest = targetCell;
+
+        if (dest == null) return false;
+
+        StartCoroutine(PlaceAndSettleRoutine(holder, dest, duration));
+        return true;
+    }
+
+    private IEnumerator PlaceAndSettleRoutine(BlockHolder holder, GridCell dest, float duration)
+    {
+        Vector3 start = holder.transform.position;
+        Vector3 end = dest.transform.position;
+        float t = 0f;
+
+        while (t < duration)
+        {
+            t += Time.deltaTime;
+            float p = Mathf.Clamp01(t / duration);
+            holder.transform.position = Vector3.Lerp(start, end, p);
+            yield return null;
+        }
+
+        holder.transform.SetParent(dest.transform, false);
+        holder.transform.localPosition = Vector3.zero;
+
+        // Register to cell and update occupancy; BlockHolder will schedule match check.
+        holder.AssignToCell(dest);
+
+        // Slight delay to allow visuals to settle before next checks
+        RequestMatchCheck(0.05f);
     }
 }

@@ -13,7 +13,7 @@ GameObject:
   - component: {fileID: 8826852058693323931}
   - component: {fileID: 7276100886348689067}
   m_Layer: 0
-  m_Name: GridCell(Clone)
+  m_Name: 1 0
   m_TagString: GridCell
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -83,7 +83,7 @@ MonoBehaviour:
   x: 1
   y: 0
   isOccupied: 0
-  currentCube: {fileID: 0}
+  currentHolder: {fileID: 0}
 --- !u!1 &853263699577480211
 GameObject:
   m_ObjectHideFlags: 0
@@ -208,7 +208,7 @@ GameObject:
   - component: {fileID: 1786200980315441301}
   - component: {fileID: 3213484955637027191}
   m_Layer: 0
-  m_Name: GridCell(Clone)
+  m_Name: 3 2
   m_TagString: GridCell
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -278,7 +278,7 @@ MonoBehaviour:
   x: 3
   y: 2
   isOccupied: 0
-  currentCube: {fileID: 0}
+  currentHolder: {fileID: 0}
 --- !u!1 &2350908056450270508
 GameObject:
   m_ObjectHideFlags: 0
@@ -625,7 +625,7 @@ GameObject:
   - component: {fileID: 3945674205089865107}
   - component: {fileID: 853350690309924293}
   m_Layer: 0
-  m_Name: GridCell(Clone)
+  m_Name: 0 1
   m_TagString: GridCell
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -695,7 +695,7 @@ MonoBehaviour:
   x: 0
   y: 1
   isOccupied: 0
-  currentCube: {fileID: 0}
+  currentHolder: {fileID: 0}
 --- !u!1 &3463562951206860647
 GameObject:
   m_ObjectHideFlags: 0
@@ -820,7 +820,7 @@ GameObject:
   - component: {fileID: 9177368635192871773}
   - component: {fileID: 8938444605236524518}
   m_Layer: 0
-  m_Name: GridCell(Clone)
+  m_Name: 3 1
   m_TagString: GridCell
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -890,7 +890,7 @@ MonoBehaviour:
   x: 3
   y: 1
   isOccupied: 0
-  currentCube: {fileID: 0}
+  currentHolder: {fileID: 0}
 --- !u!1 &3689667456549392386
 GameObject:
   m_ObjectHideFlags: 0
@@ -904,7 +904,7 @@ GameObject:
   - component: {fileID: 3696863850694876269}
   - component: {fileID: 5511751024454283819}
   m_Layer: 0
-  m_Name: GridCell(Clone)
+  m_Name: '2 2 '
   m_TagString: GridCell
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -974,7 +974,7 @@ MonoBehaviour:
   x: 2
   y: 2
   isOccupied: 0
-  currentCube: {fileID: 0}
+  currentHolder: {fileID: 0}
 --- !u!1 &3821021745163876815
 GameObject:
   m_ObjectHideFlags: 0
@@ -988,7 +988,7 @@ GameObject:
   - component: {fileID: 7050428014164570706}
   - component: {fileID: 115643885385382055}
   m_Layer: 0
-  m_Name: GridCell(Clone)
+  m_Name: 2 1
   m_TagString: GridCell
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -1058,7 +1058,7 @@ MonoBehaviour:
   x: 2
   y: 1
   isOccupied: 0
-  currentCube: {fileID: 0}
+  currentHolder: {fileID: 0}
 --- !u!1 &3963001034089461312
 GameObject:
   m_ObjectHideFlags: 0
@@ -1294,7 +1294,7 @@ GameObject:
   - component: {fileID: 4414444686441318486}
   - component: {fileID: 2977772202525131623}
   m_Layer: 0
-  m_Name: GridCell(Clone)
+  m_Name: ' 1 2'
   m_TagString: GridCell
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -1364,7 +1364,7 @@ MonoBehaviour:
   x: 1
   y: 2
   isOccupied: 0
-  currentCube: {fileID: 0}
+  currentHolder: {fileID: 0}
 --- !u!1 &4698358982193850506
 GameObject:
   m_ObjectHideFlags: 0
@@ -1600,7 +1600,7 @@ GameObject:
   - component: {fileID: 4742878361258210266}
   - component: {fileID: 2302149764057265375}
   m_Layer: 0
-  m_Name: GridCell(Clone)
+  m_Name: ' 3 0'
   m_TagString: GridCell
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -1653,7 +1653,7 @@ BoxCollider:
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 3
-  m_Size: {x: 1, y: 1, z: 20}
+  m_Size: {x: 1, y: 1, z: 1}
   m_Center: {x: 0, y: 0, z: 0}
 --- !u!114 &2302149764057265375
 MonoBehaviour:
@@ -1670,7 +1670,7 @@ MonoBehaviour:
   x: 3
   y: 0
   isOccupied: 0
-  currentCube: {fileID: 0}
+  currentHolder: {fileID: 0}
 --- !u!1 &7160728851819341511
 GameObject:
   m_ObjectHideFlags: 0
@@ -1684,7 +1684,7 @@ GameObject:
   - component: {fileID: 98491412439374894}
   - component: {fileID: 4962349367931021353}
   m_Layer: 0
-  m_Name: GridCell(Clone)
+  m_Name: 1 1
   m_TagString: GridCell
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -1754,7 +1754,7 @@ MonoBehaviour:
   x: 1
   y: 1
   isOccupied: 0
-  currentCube: {fileID: 0}
+  currentHolder: {fileID: 0}
 --- !u!1 &7212754046221457444
 GameObject:
   m_ObjectHideFlags: 0
@@ -1879,7 +1879,7 @@ GameObject:
   - component: {fileID: 5763251796110597502}
   - component: {fileID: 1549636858583611043}
   m_Layer: 0
-  m_Name: GridCell(Clone)
+  m_Name: 2 0
   m_TagString: GridCell
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -1949,7 +1949,7 @@ MonoBehaviour:
   x: 2
   y: 0
   isOccupied: 0
-  currentCube: {fileID: 0}
+  currentHolder: {fileID: 0}
 --- !u!1 &8241328587613252477
 GameObject:
   m_ObjectHideFlags: 0
@@ -2116,7 +2116,7 @@ GameObject:
   - component: {fileID: 6244155962450327154}
   - component: {fileID: 8839922460469289927}
   m_Layer: 0
-  m_Name: GridCell(Clone)
+  m_Name: 3 1
   m_TagString: GridCell
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -2183,7 +2183,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: de9f3c1ec26ba7b479af18743ebe30df, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::GridCell
-  x: 3
+  x: 4
   y: 1
   isOccupied: 0
-  currentCube: {fileID: 0}
+  currentHolder: {fileID: 0}
