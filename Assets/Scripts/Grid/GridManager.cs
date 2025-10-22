@@ -385,14 +385,10 @@ public class GridManager : MonoBehaviour
     {
         if (holder == null || targetCell == null || gridCells == null) return false;
 
-        // Choose destination: lowest free in target column; fallback to targetCell if free
-        var dest = FindLowestFreeCellInColumn(targetCell.x);
-        if (dest == null && !targetCell.isOccupied)
-            dest = targetCell;
+        // Place exactly at the selected cell if it's free (no column gravity)
+        if (targetCell.isOccupied) return false;
 
-        if (dest == null) return false;
-
-        StartCoroutine(PlaceAndSettleRoutine(holder, dest, duration));
+        StartCoroutine(PlaceAndSettleRoutine(holder, targetCell, duration));
         return true;
     }
 
@@ -410,9 +406,9 @@ public class GridManager : MonoBehaviour
             yield return null;
         }
 
-        holder.transform.SetParent(dest.transform, false);
+        holder.transform.SetParent(dest.transform, true);
         holder.transform.localPosition = Vector3.zero;
-
+    
         // Register to cell and update occupancy; BlockHolder will schedule match check.
         holder.AssignToCell(dest);
 

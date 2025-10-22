@@ -41,6 +41,8 @@ public class SpawnGridController : MonoBehaviour
     // === Highlight debug variables ===
     private GridCell lastHoverCell;
     private Color originalColor = Color.white;
+    private Vector3 preDragPosition;
+    private Transform preDragParent;
 
     void Start()
     {
@@ -56,6 +58,7 @@ public class SpawnGridController : MonoBehaviour
 
     void Update()
     {
+
         if (activeHolder == null) return;
 
         bool tryStartDrag = PointerPressedThisFrame() || (!dragging && PointerIsPressed());
@@ -73,6 +76,8 @@ public class SpawnGridController : MonoBehaviour
                 dragging = true;
                 var pointer = GetPointerWorld(dragPlaneZ);
                 var holderPos = activeHolder.transform.position;
+                preDragPosition = activeHolder.transform.position;
+                preDragParent = activeHolder.transform.parent;
                 dragOffset = new Vector3(holderPos.x, holderPos.y, dragPlaneZ) - pointer;
                 activeHolder.transform.SetParent(null);
             }
@@ -194,8 +199,8 @@ public class SpawnGridController : MonoBehaviour
     {
         if (spawnSlot == null) spawnSlot = transform;
 
-        var go = new GameObject("Holder_Spawn");
-        go.transform.SetParent(spawnSlot, false);
+        GameObject go = new GameObject("Holder_Spawn");
+        go.transform.SetParent(spawnSlot, true);
         go.transform.localPosition = Vector3.zero;
         go.transform.localRotation = Quaternion.identity;
 
@@ -312,9 +317,10 @@ public class SpawnGridController : MonoBehaviour
     private IEnumerator SnapBack(BlockHolder holder)
     {
         Vector3 start = holder.transform.position;
-        Vector3 end = spawnSlot.position;
+        Vector3 end = preDragPosition;
         float t = 0f;
         float d = Mathf.Max(0.1f, throwDuration * 0.75f);
+
         while (t < d)
         {
             t += Time.deltaTime;
@@ -322,8 +328,12 @@ public class SpawnGridController : MonoBehaviour
             holder.transform.position = Vector3.Lerp(start, end, p);
             yield return null;
         }
-        holder.transform.SetParent(spawnSlot, false);
-        holder.transform.localPosition = Vector3.zero;
+
+        // Restore spawn parent while keeping the world position
+        if (spawnSlot != null)
+        {
+            holder.transform.SetParent(spawnSlot, true);
+        }
     }
 
     private GridCell FindNearestFreeCell(Vector3 worldPos)

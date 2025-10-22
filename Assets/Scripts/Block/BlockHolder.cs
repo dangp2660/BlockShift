@@ -418,7 +418,7 @@ public class BlockHolder : MonoBehaviour
         if (nearest != null)
         {
             // become a child of the GridCell and snap to center
-            transform.SetParent(nearest.transform, false);
+            transform.SetParent(nearest.transform, true);
             transform.localPosition = Vector3.zero;
             AssignToCell(nearest); // sets holder on the cell and registers blocks
         }
