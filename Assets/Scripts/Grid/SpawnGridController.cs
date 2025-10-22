@@ -234,6 +234,7 @@ public class SpawnGridController : MonoBehaviour
 
     private bool PointerPressedThisFrame()
     {
+        if (Input.touchCount > 0 && Input.GetTouch(0).phase == UnityEngine.TouchPhase.Began) return true;
         var mouse = Mouse.current;
         var touch = Touchscreen.current;
         return (mouse != null && mouse.leftButton.wasPressedThisFrame)
@@ -242,6 +243,11 @@ public class SpawnGridController : MonoBehaviour
 
     private bool PointerReleasedThisFrame()
     {
+        if (Input.touchCount > 0)
+        {
+            var ph = Input.GetTouch(0).phase;
+            if (ph == UnityEngine.TouchPhase.Ended || ph == UnityEngine.TouchPhase.Canceled) return true;
+        }
         var mouse = Mouse.current;
         var touch = Touchscreen.current;
         return (mouse != null && mouse.leftButton.wasReleasedThisFrame)
@@ -250,6 +256,11 @@ public class SpawnGridController : MonoBehaviour
 
     private bool PointerIsPressed()
     {
+        if (Input.touchCount > 0)
+        {
+            var ph = Input.GetTouch(0).phase;
+            if (ph == UnityEngine.TouchPhase.Moved || ph == UnityEngine.TouchPhase.Stationary || ph == UnityEngine.TouchPhase.Began) return true;
+        }
         var mouse = Mouse.current;
         var touch = Touchscreen.current;
         return (mouse != null && mouse.leftButton.isPressed)
@@ -258,10 +269,11 @@ public class SpawnGridController : MonoBehaviour
 
     private Vector2 GetPointerScreen()
     {
-        var mouse = Mouse.current;
+        if (Input.touchCount > 0) return Input.GetTouch(0).position;
         var touch = Touchscreen.current;
-        if (mouse != null) return mouse.position.ReadValue();
         if (touch != null) return touch.primaryTouch.position.ReadValue();
+        var mouse = Mouse.current;
+        if (mouse != null) return mouse.position.ReadValue();
         return new Vector2(Screen.width * 0.5f, Screen.height * 0.5f);
     }
 

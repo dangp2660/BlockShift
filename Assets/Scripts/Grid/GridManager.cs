@@ -16,15 +16,24 @@ public class GridManager : MonoBehaviour
     private float pendingDelayTimer = 0f;
     private bool isResolvingMatches = false;
     private int activePopCoroutines = 0;
+    private bool restartQueued = false;
+    public UIManager uiManager;
 
     void Awake()
     {
         LoadExistingGrid();
         RequestMatchCheck(0f); // schedule initial check once
+
+        // Ensure we have a UIManager reference (Inspector or fallback)
+        if (uiManager == null)
+        {
+            uiManager = UIManager.Instance;
+        }
     }
 
     void Update()
     {
+
         // Only check when scheduled and not currently resolving animations/pops
         if (pendingMatchCheck && !isResolvingMatches)
         {
@@ -39,7 +48,24 @@ public class GridManager : MonoBehaviour
                 CheckForMatch();
             }
         }
+
+        // When the grid is full, show Restart UI instead of auto-restart
+        // Guard against restarting while pops are resolving
+        if (!restartQueued && !isResolvingMatches && isRestartGame())
+        {
+            restartQueued = true;
+            if (uiManager != null)
+            {
+                uiManager.openRestart();
+            }
+            else
+            {
+                Debug.LogWarning("UIManager not found; cannot open Restart UI.");
+                restartQueued = false;
+            }
+        }
     }
+
 
     public void RequestMatchCheck(float delay = 0f)
     {
@@ -48,9 +74,6 @@ public class GridManager : MonoBehaviour
         if (debugMatchLogs) Debug.Log($"[GridManager] Scheduled match check in {delay:0.00}s");
     }
 
-    /// <summary>
-    /// Tự động load toàn bộ GridCell có trong scene.
-    /// </summary>
     public void LoadExistingGrid()
     {
         GridCell[] allCells = FindObjectsByType<GridCell>(FindObjectsSortMode.None);
@@ -89,10 +112,6 @@ public class GridManager : MonoBehaviour
 
         return gridCells[x, y];
     }
-
-    /// <summary>
-    /// Kiểm tra và xử lý các nhóm block trùng màu liền kề.
-    /// </summary>
     public void CheckForMatch()
     {
         if (gridCells == null) return;
@@ -156,51 +175,6 @@ public class GridManager : MonoBehaviour
         }
     }
 
-    /// <summary>
-    /// FloodFill tìm các block liền kề cùng màu.
-    /// </summary>
-    private List<Block> FloodFill(int startX, int startY, int colorId, bool[,] visited)
-    {
-        List<Block> result = new List<Block>();
-        Queue<Vector2Int> queue = new Queue<Vector2Int>();
-        queue.Enqueue(new Vector2Int(startX, startY));
-
-        int width = gridCells.GetLength(0);
-        int height = gridCells.GetLength(1);
-
-        while (queue.Count > 0)
-        {
-            Vector2Int pos = queue.Dequeue();
-            int x = pos.x;
-            int y = pos.y;
-
-            if (x < 0 || y < 0 || x >= width || y >= height) continue;
-            if (visited[x, y]) continue;
-
-            GridCell cell = gridCells[x, y];
-            if (cell == null || !cell.isOccupied) continue;
-
-            BlockHolder holder = cell.currentHolder;
-            if (holder == null || !holder.HasColor(colorId)) continue;
-
-            Block block = holder.GetBlockByColor(colorId);
-            if (block == null) continue;
-
-            visited[x, y] = true;
-            result.Add(block);
-
-            queue.Enqueue(new Vector2Int(x + 1, y));
-            queue.Enqueue(new Vector2Int(x - 1, y));
-            queue.Enqueue(new Vector2Int(x, y + 1));
-            queue.Enqueue(new Vector2Int(x, y - 1));
-        }
-
-        return result;
-    }
-
-    /// <summary>
-    /// Hiệu ứng gom nhóm rồi pop toàn bộ block.
-    /// </summary>
     private IEnumerator MergeAndPop(List<Block> blocks)
     {
         if (blocks == null || blocks.Count == 0)
@@ -209,7 +183,7 @@ public class GridManager : MonoBehaviour
             if (activePopCoroutines == 0) { isResolvingMatches = false; }
             yield break;
         }
-
+    
         HashSet<BlockHolder> affectedHolders = new HashSet<BlockHolder>();
         foreach (var block in blocks)
         {
@@ -217,8 +191,8 @@ public class GridManager : MonoBehaviour
             var holder = block.GetComponentInParent<BlockHolder>();
             if (holder != null) affectedHolders.Add(holder);
         }
-
-        // Tính trung tâm nhóm
+    
+        // Compute center
         Vector3 center = Vector3.zero;
         foreach (var block in blocks)
         {
@@ -226,13 +200,26 @@ public class GridManager : MonoBehaviour
                 center += block.transform.position;
         }
         center /= blocks.Count;
-
+    
+        // Capture metadata BEFORE blocks are disabled/destroyed
+        int groupSize = blocks.Count;
+        int colorId = -1;
+        for (int i = 0; i < groupSize; i++)
+        {
+            var b = blocks[i];
+            if (b != null && b.blockMaterialData != null)
+            {
+                colorId = b.blockMaterialData.colorID;
+                break;
+            }
+        }
+    
+        // Animation towards center
         float duration = 0.25f;
         float t = 0f;
-
         List<Vector3> startPos = new List<Vector3>();
         List<Vector3> startScale = new List<Vector3>();
-
+    
         foreach (var block in blocks)
         {
             if (block != null)
@@ -246,8 +233,7 @@ public class GridManager : MonoBehaviour
                 startScale.Add(Vector3.one);
             }
         }
-
-        // Gom dần về trung tâm (hiệu ứng giống Jelly Field)
+    
         while (t < duration)
         {
             t += Time.deltaTime;
@@ -262,26 +248,34 @@ public class GridManager : MonoBehaviour
             }
             yield return null;
         }
-
+    
         yield return new WaitForSeconds(0.1f);
-
+    
         // Pop toàn bộ block trong nhóm
         foreach (var block in blocks)
         {
             if (block != null)
                 block.PlayPopEffect();
         }
-
+    
         // Allow destroyed blocks to unregister from holders
         yield return new WaitForSeconds(0.35f);
-
+    
         // Rescale all holders across the whole grid (not just affected ones)
         RescaleAllHolders(true);
-
+    
+        // NOW update LevelManager using captured metadata (safe even if blocks are disabled)
+        var lm = Object.FindFirstObjectByType<LevelManager>();
+        if (lm == null) lm = Object.FindAnyObjectByType<LevelManager>();
+        if (lm != null && colorId >= 0)
+        {
+            lm.AddProgress(colorId, groupSize);
+        }
+    
         // Decrement and unblock further checks
         activePopCoroutines = Mathf.Max(0, activePopCoroutines - 1);
         isResolvingMatches = activePopCoroutines > 0 ? true : false;
-
+    
         // Unconditionally schedule a re-check for follow-up matches
         RequestMatchCheck(0.1f);
     }
@@ -414,5 +408,27 @@ public class GridManager : MonoBehaviour
 
         // Slight delay to allow visuals to settle before next checks
         RequestMatchCheck(0.05f);
+    }
+
+    private bool isRestartGame()
+    {
+        if (gridCells == null) return false;
+
+        int w = gridCells.GetLength(0);
+        int h = gridCells.GetLength(1);
+        bool hasAnyCell = false;
+
+        for (int x = 0; x < w; x++)
+        {
+            for (int y = 0; y < h; y++)
+            {
+                var cell = gridCells[x, y];
+                if (cell == null) continue;      // ignore missing cells
+                hasAnyCell = true;
+                if (!cell.isOccupied) return false;
+            }
+        }
+
+        return hasAnyCell; // only true if at least one real cell exists and all are occupied
     }
 }

@@ -148,7 +148,7 @@ public class BlockHolder : MonoBehaviour
             block.transform.localScale = s;
         }
         SpawnUniqueBlocks();
-    }//GenerateBlocks
+    }
 
     public void SpawnUniqueBlocks()
     {
@@ -606,11 +606,6 @@ public class BlockHolder : MonoBehaviour
             }
         }
     }
-    private void NormalizeSoloRowBlocks()
-    {
-        HandleSoloRow(0);
-        HandleSoloRow(1);
-    }
 
     private void HandleSoloRow(int rowY)
     {
@@ -750,12 +745,6 @@ public class BlockHolder : MonoBehaviour
             b.subCellIn = new List<Vector2Int> { new Vector2Int(colB, 0), new Vector2Int(colB, 1) };
         }
     }
-
-    // Position each child at the center of its occupied subcells.
-    // 1 subcell -> center of that subcell
-    // 2 horizontal -> center between left/right on that row
-    // 2 vertical   -> center between bottom/top on that column
-    // 3 or 4       -> center of the cell
     private void RepositionChildrenBySubcells()
     {
         float half = cellSize * 0.25f; // subcell center offset
@@ -844,33 +833,6 @@ public class BlockHolder : MonoBehaviour
         return s;
     }
 
-    // Improved inference: prefer orientation matching current layout; when ambiguous, prefer vertical for stability
-    private bool InferTwoOrientationFromCurrent(Block a, Block b)
-    {
-        var rowsA = GetRowSet(a);
-        var rowsB = GetRowSet(b);
-        var colsA = GetColSet(a);
-        var colsB = GetColSet(b);
-
-        bool shareRow = rowsA.Count > 0 && rowsB.Count > 0 && rowsA.Overlaps(rowsB);
-        bool shareCol = colsA.Count > 0 && colsB.Count > 0 && colsA.Overlaps(colsB);
-
-        if (shareRow && !shareCol) return true;   // horizontal
-        if (shareCol && !shareRow) return false;  // vertical
-
-        if (IsVerticalTwo(a) || IsVerticalTwo(b)) return false;
-        if (IsHorizontalTwo(a) || IsHorizontalTwo(b)) return true;
-
-        if (IsSingle(a) && IsSingle(b))
-        {
-            if (a.subCellIn[0].y == b.subCellIn[0].y) return true;   // same row
-            if (a.subCellIn[0].x == b.subCellIn[0].x) return false;  // same column
-            return false; // ambiguous: prefer vertical (less flipping)
-        }
-
-        return true; // default horizontal
-    }
-
     private int ChooseBestRowForTwo(Block a, Block b)
     {
         if (IsHorizontalTwo(a)) return a.subCellIn[0].y;
@@ -897,9 +859,6 @@ public class BlockHolder : MonoBehaviour
         return 0;
     }
 
-    // Decide orientation for the 2-block form using current subcell rows/columns.
-    // Returns true for Horizontal, false for Vertical. Ambiguous cases:
-    // if mode is Vertical -> choose vertical; else choose horizontal.
     private bool InferTwoBlockOrientation(Block a, Block b)
     {
         HashSet<int> rowsA = new HashSet<int>();

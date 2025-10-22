@@ -5,11 +5,9 @@ public class AudioManager : MonoBehaviour
     public static AudioManager instance;
     [Header("Audio Source")]
     public AudioSource source;
-    [Header("BackGround")]
-    public AudioClip backGroundSource;
     [Header("SFX")]
-    public AudioClip clickBlock;
     public AudioClip destroyBlock;
+    public AudioClip coinClip;
 
     private void Awake()
     {
@@ -24,24 +22,20 @@ public class AudioManager : MonoBehaviour
         }
     }
 
-    private void Start()
+    public void turnOnAudio()
     {
-        playBackGround();
+        source.enabled = true;
     }
-
-    public void playBackGround()
+    public void turnOffAudio()
     {
-        source.clip = backGroundSource;
-        source.loop = true;
-        source.volume = 0.8f;
-        source.Play();
-    }//playBackGround
+        source.enabled = false;
+    }
 
     private void playSFX(AudioClip clip)
     {
         if (clip == null) return;
         AudioSource.PlayClipAtPoint(clip, Camera.main.transform.transform.position, 1f);
     }//playSFX
-    public void playClickBlock() => playSFX(clickBlock);
+    public void playCoinIncrease() => playSFX(coinClip);
     public void playDestroyBlock() => playSFX(destroyBlock);
 }

@@ -12,5 +12,5 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4d4c6210fa0a4a64f9ee0bced286adf9, type: 3}
   m_Name: Yellow
   m_EditorClassIdentifier: Assembly-CSharp::BlockMaterialData
-  colorID: 25
+  colorID: 5
   material: {fileID: 2100000, guid: 400bfed5d52e87242bce474183f8ed28, type: 2}

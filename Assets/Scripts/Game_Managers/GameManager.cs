@@ -1,28 +1,48 @@
-using UnityEditor.SearchService;
-using UnityEngine;
+﻿using UnityEngine;
 using UnityEngine.SceneManagement;
+using System.Collections;
+using TMPro;
 
 public class GameManager : MonoBehaviour
 {
     public static GameManager instance;
     public int Coins;
+    public int currentScene = 0;
+
 
     private void Awake()
     {
-        if(instance == null)
+        if (instance == null)
         {
             instance = this;
             DontDestroyOnLoad(gameObject);
+            currentScene = SceneManager.GetActiveScene().buildIndex;
         }
         else
         {
             Destroy(gameObject);
         }
     }
-    
+
+    private void Start()
+    {
+        UpdateCoinUI();
+    }
+
     public void restartLevel()
     {
-        SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
+        SceneManager.LoadScene(currentScene);
+    }
+
+    public void nextLevel()
+    {
+        // Ví dụ: khi qua level, bạn nhận thêm 100 coin
+        StartCoroutine(IncreaseCoinsSmoothly(Coins + 15, 1f, () =>
+        {
+            // Sau khi tăng coin xong, mới qua level
+            currentScene++;
+            SceneManager.LoadScene(currentScene);
+        }));
     }
 
     public void exitGame()
@@ -30,4 +50,29 @@ public class GameManager : MonoBehaviour
         Application.Quit();
     }
 
+    private void UpdateCoinUI()
+    {
+
+        if (UIManager.Instance.textCoins != null)
+            UIManager.Instance.textCoins.text = Coins.ToString();
+
+    }
+    private IEnumerator IncreaseCoinsSmoothly(int targetCoins, float duration, System.Action onComplete = null)
+    {
+        int startCoins = Coins;
+        float timer = 0f;
+
+        while (timer < duration)
+        {
+            timer += Time.deltaTime;
+            Coins = Mathf.RoundToInt(Mathf.Lerp(startCoins, targetCoins, timer / duration));
+            UpdateCoinUI();
+            yield return null;
+        }
+
+        Coins = targetCoins;
+        UpdateCoinUI();
+        AudioManager.instance.playCoinIncrease();
+        onComplete?.Invoke();
+    }
 }
