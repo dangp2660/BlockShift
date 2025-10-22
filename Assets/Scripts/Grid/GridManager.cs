@@ -10,7 +10,7 @@ public class GridManager : MonoBehaviour
     [Header("Match Settings")]
     public int minGroupSize = 2;
 
-    private bool[,] visited;
+    private bool[,] visitedSub;
 
     void Awake()
     {
@@ -73,28 +73,38 @@ public class GridManager : MonoBehaviour
 
         int width = gridCells.GetLength(0);
         int height = gridCells.GetLength(1);
-        visited = new bool[width, height];
 
-        for (int x = 0; x < width; x++)
+        int subW = width * 2;
+        int subH = height * 2;
+            visitedSub = new bool[subW, subH];
+
+        for (int cx = 0; cx < width; cx++)
         {
-            for (int y = 0; y < height; y++)
+            for (int cy = 0; cy < height; cy++)
             {
-                GridCell cell = gridCells[x, y];
-                if (cell == null || !cell.isOccupied) continue;
+                GridCell cell = gridCells[cx, cy];
+                if (cell == null || !cell.isOccupied || cell.currentHolder == null) continue;
 
-                // Mỗi GridCell chứa 1 BlockHolder (có thể là block nhiều màu)
-                Block block = cell.currentHolder?.GetComponent<Block>();
-                if (block == null || block.isPopping || visited[x, y]) continue;
-
-                List<Block> connected = FloodFill(x, y, block.blockMaterialData.colorID, visited);
-
-                if (connected.Count >= minGroupSize)
+                // Scan 2x2 subcells inside this cell
+                for (int sx = 0; sx < 2; sx++)
                 {
-                    // Gắn flag để tránh pop trùng
-                    foreach (var b in connected)
-                        b.isPopping = true;
+                    for (int sy = 0; sy < 2; sy++)
+                    {
+                        int gx = cx * 2 + sx;
+                        int gy = cy * 2 + sy;
+                        if (visitedSub[gx, gy]) continue;
 
-                    StartCoroutine(MergeAndPop(connected));
+                        Block start = GetBlockAtGlobalSubcell(gx, gy);
+                        if (start == null || start.blockMaterialData == null || start.isPopping) continue;
+
+                        List<Block> connected = FloodFillSubcells(gx, gy, start.blockMaterialData.colorID);
+
+                        if (connected.Count >= minGroupSize)
+                        {
+                            foreach (var b in connected) b.isPopping = true;
+                            StartCoroutine(MergeAndPop(connected));
+                        }
+                    }
                 }
             }
         }
@@ -124,8 +134,11 @@ public class GridManager : MonoBehaviour
             GridCell cell = gridCells[x, y];
             if (cell == null || !cell.isOccupied) continue;
 
-            Block block = cell.currentHolder?.GetComponent<Block>();
-            if (block == null || block.blockMaterialData.colorID != colorId) continue;
+            BlockHolder holder = cell.currentHolder;
+            if (holder == null || !holder.HasColor(colorId)) continue;
+
+            Block block = holder.GetBlockByColor(colorId);
+            if (block == null) continue;
 
             visited[x, y] = true;
             result.Add(block);
@@ -201,6 +214,59 @@ public class GridManager : MonoBehaviour
                 block.PlayPopEffect();
         }
 
-        Debug.Log($"💥 Popped {blocks.Count} blocks!");
+        Debug.Log($"Popped {blocks.Count} blocks!");
+    }
+    private List<Block> FloodFillSubcells(int startGX, int startGY, int colorId)
+    {
+        int subW = gridCells.GetLength(0) * 2;
+        int subH = gridCells.GetLength(1) * 2;
+
+        Block startBlock = GetBlockAtGlobalSubcell(startGX, startGY);
+        if (startBlock == null || startBlock.blockMaterialData == null || startBlock.blockMaterialData.colorID != colorId)
+            return new List<Block>();
+
+        Queue<Vector2Int> q = new Queue<Vector2Int>();
+        HashSet<Block> resultBlocks = new HashSet<Block>();
+
+        visitedSub[startGX, startGY] = true;
+        q.Enqueue(new Vector2Int(startGX, startGY));
+        resultBlocks.Add(startBlock);
+
+        int[] dx = { 1, -1, 0, 0 };
+        int[] dy = { 0, 0, 1, -1 };
+
+        while (q.Count > 0)
+        {
+            Vector2Int p = q.Dequeue();
+            for (int i = 0; i < 4; i++)
+            {
+                int nx = p.x + dx[i];
+                int ny = p.y + dy[i];
+                if (nx < 0 || ny < 0 || nx >= subW || ny >= subH) continue;
+                if (visitedSub[nx, ny]) continue;
+
+                Block nb = GetBlockAtGlobalSubcell(nx, ny);
+                if (nb == null || nb.blockMaterialData == null || nb.isPopping) continue;
+                if (nb.blockMaterialData.colorID != colorId) continue;
+
+                visitedSub[nx, ny] = true;
+                q.Enqueue(new Vector2Int(nx, ny));
+                resultBlocks.Add(nb);
+            }
+        }
+
+        return new List<Block>(resultBlocks);
+    }
+    private Block GetBlockAtGlobalSubcell(int gx, int gy)
+    {
+        int cx = gx / 2;
+        int cy = gy / 2;
+        int sx = gx % 2;
+        int sy = gy % 2;
+
+        GridCell cell = GetCell(cx, cy);
+        if (cell == null || !cell.isOccupied || cell.currentHolder == null) return null;
+
+        return cell.currentHolder.GetBlockInSubCell(new Vector2Int(sx, sy));
     }
 }

@@ -14,6 +14,13 @@ public class BlockHolder : MonoBehaviour
     private readonly List<Block> childBlocks = new List<Block>();
     public GridCell parentCell;
 
+    [Header("Spawn Count")]
+    public SpawnCountOption spawnCount = SpawnCountOption.One;
+    public enum SpawnCountOption { One = 1, Two = 2, Four = 4 }
+
+    public enum TwoBlockMode { Auto, Horizontal, Vertical }
+    public TwoBlockMode twoBlockMode = TwoBlockMode.Auto;
+
     private List<Vector2Int> allSubCells = new List<Vector2Int>()
         {
             new Vector2Int(0,0),
@@ -21,13 +28,34 @@ public class BlockHolder : MonoBehaviour
             new Vector2Int(0,1),
             new Vector2Int(1,1)
         };
+    public bool useSpawnCount = true;
+
     void Start()
     {
+        if (useSpawnCount)
+        {
+            SpawnCountOption[] options = new SpawnCountOption[] {
+                SpawnCountOption.One,
+                SpawnCountOption.Two,
+                SpawnCountOption.Four
+            };
+            spawnCount = options[Random.Range(0, options.Length)];
+            ConfigureChildOffsetsBySpawn();
+        }
+
         GenerateBlocks();
+
+        // Ensure parentCell is set and sub-cells get assigned
+        if (parentCell == null)
+            parentCell = GetComponentInParent<GridCell>();
 
         if (parentCell != null)
         {
             AssignToCell(parentCell);
+        }
+        else
+        {
+            AssignSubCells(); // still assign subCellIn so matching works
         }
     }
 
@@ -137,32 +165,30 @@ public class BlockHolder : MonoBehaviour
             block.findCurrentCell(cell);
         }
 
-        // 🔹 Gọi logic chia subcell
         AssignSubCells();
     }
 
 
     private void AssignSubCells()
     {
-        if (childBlocks == null || childBlocks.Count == 0 || parentCell == null)
+        if (childBlocks == null || childBlocks.Count == 0)
             return;
 
         int blockCount = childBlocks.Count;
         int baseCount = allSubCells.Count / blockCount;
         int remainder = allSubCells.Count % blockCount;
         int index = 0;
-    
+
         for (int i = 0; i < blockCount; i++)
         {
             int take = baseCount + (i < remainder ? 1 : 0);
             List<Vector2Int> assign = new List<Vector2Int>();
-    
+
             for (int j = 0; j < take && index < allSubCells.Count; j++, index++)
                 assign.Add(allSubCells[index]);
-    
+
             childBlocks[i].subCellIn = assign;
-    
-            // Scale only for blocks with exactly two subcells
+
             if (assign.Count == 2 && childOffsets.Length == 3)
             {
                 Vector2Int a = assign[0];
@@ -171,14 +197,12 @@ public class BlockHolder : MonoBehaviour
                 bool internalHorizontal = (a.y == b.y) && (Mathf.Abs(a.x - b.x) == 1);
                 bool internalVertical   = (a.x == b.x) && (Mathf.Abs(a.y - b.y) == 1);
     
-                // Build set of other offsets from the overall layout (exclude this block's two subcells)
                 HashSet<Vector2Int> others = new HashSet<Vector2Int>(
                     childOffsets != null ? childOffsets : new Vector2Int[] { Vector2Int.zero }
                 );
                 others.Remove(a);
                 others.Remove(b);
     
-                // Does any of this block's subcells touch another offset vertically/horizontally?
                 bool touchesVerticalOther =
                     others.Contains(new Vector2Int(a.x, a.y + 1)) ||
                     others.Contains(new Vector2Int(a.x, a.y - 1)) ||
@@ -191,7 +215,6 @@ public class BlockHolder : MonoBehaviour
                     others.Contains(new Vector2Int(b.x + 1, b.y)) ||
                     others.Contains(new Vector2Int(b.x - 1, b.y));
     
-                // Decide axis to scale
                 bool scaleY = false;
                 bool scaleX = false;
     
@@ -200,20 +223,17 @@ public class BlockHolder : MonoBehaviour
                 else if (touchesHorizontalOther && !touchesVerticalOther)
                     scaleX = true;
                 else if (touchesVerticalOther && touchesHorizontalOther)
-                    scaleY = true; // prefer Y in mixed (L-shape) case
+                    scaleY = true; 
                 else
                 {
-                    // Fallback to the internal pair axis
                     if (internalHorizontal) scaleX = true;
                     else if (internalVertical) scaleY = true;
                 }
     
-                // Apply scale and axis-specific offset
                 Transform t = childBlocks[i].transform;
                 Vector3 s = t.localScale;
                 Vector3 lp = t.localPosition;
     
-                // Double along the chosen axis, clamp to ~0.9 * cellSize
                 float target = cellSize * 0.9f;
                 if (scaleX) { s.x = Mathf.Min(s.x * 2f, target); lp.x = 0.06f; }
                 if (scaleY) { s.y = Mathf.Min(s.y * 2f, target); lp.y = 0.09f; }
@@ -221,6 +241,111 @@ public class BlockHolder : MonoBehaviour
                 t.localScale = s;
                 t.localPosition = lp;
             }
+        }
+    }
+
+    private void ConfigureChildOffsetsBySpawn()
+    {
+        switch (spawnCount)
+        {
+            case SpawnCountOption.One:
+                childOffsets = new Vector2Int[] { Vector2Int.zero };
+                break;
+
+            case SpawnCountOption.Two:
+                bool horizontal = twoBlockMode == TwoBlockMode.Auto
+                    ? Random.value > 0.5f
+                    : twoBlockMode == TwoBlockMode.Horizontal;
+
+                childOffsets = horizontal
+                    ? new Vector2Int[] { new Vector2Int(0, 0), new Vector2Int(1, 0) } // horizontal
+                    : new Vector2Int[] { new Vector2Int(0, 0), new Vector2Int(0, 1) }; // vertical
+                break;
+
+            case SpawnCountOption.Four:
+                childOffsets = new Vector2Int[]
+                {
+                    new Vector2Int(0, 0),
+                    new Vector2Int(1, 0),
+                    new Vector2Int(0, 1),
+                    new Vector2Int(1, 1)
+                };
+                break;
+        }
+    }
+
+    public void SetSpawnCount(SpawnCountOption count, TwoBlockMode mode = TwoBlockMode.Auto)
+    {
+        spawnCount = count;
+        twoBlockMode = mode;
+
+        ConfigureChildOffsetsBySpawn();
+        GenerateBlocks();
+
+        if (parentCell != null)
+            AssignToCell(parentCell);
+    }
+
+    public Block GetAnyBlock()
+    {
+        return childBlocks.Count > 0 ? childBlocks[0] : null;
+    }
+
+    public bool HasColor(int colorId)
+    {
+        return GetBlockByColor(colorId) != null;
+    }
+
+    public Block GetBlockByColor(int colorId)
+    {
+        foreach (var b in childBlocks)
+        {
+            if (b != null && b.blockMaterialData != null && b.blockMaterialData.colorID == colorId)
+                return b;
+        }
+        return null;
+    }
+
+    public IReadOnlyList<Block> GetBlocks()
+    {
+        return childBlocks;
+    }
+
+    public Block GetBlockInSubCell(Vector2Int sub)
+    {
+        // sub is one of (0,0), (1,0), (0,1), (1,1)
+        foreach (var b in childBlocks)
+        {
+            if (b == null || b.subCellIn == null) continue;
+            for (int i = 0; i < b.subCellIn.Count; i++)
+            {
+                if (b.subCellIn[i] == sub)
+                    return b;
+            }
+        }
+        return null;
+    }
+
+    public void NotifyChildDestroyed(Block b)
+    {
+        if (b == null) return;
+        // Remove from local list
+        // If no children remain, free parentCell
+        // Safe on duplicate calls
+        // childBlocks is private; remove if present
+        for (int i = 0; i < childBlocks.Count; i++)
+        {
+            if (childBlocks[i] == b)
+            {
+                childBlocks.RemoveAt(i);
+                break;
+            }
+        }
+
+        if (parentCell != null && childBlocks.Count == 0)
+        {
+            parentCell.isOccupied = false;
+            parentCell.currentHolder = null;
         }
     }
 }

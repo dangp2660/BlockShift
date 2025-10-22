@@ -21,18 +21,24 @@ public class Block : MonoBehaviour
             currentCell.currentHolder = null;
         }
 
-
         if (!cell.isOccupied)
         {
             currentCell = cell;
             cell.isOccupied = true;
-            cell.currentHolder = gameObject.GetComponent<BlockHolder>();
+            // Set holder from parent so GridManager can find children correctly
+            var holder = GetComponentInParent<BlockHolder>();
+            cell.currentHolder = holder;
         }
     }
 
     private void OnDestroy()
     {
-        if (currentCell != null)
+        var holder = GetComponentInParent<BlockHolder>();
+        if (holder != null)
+        {
+            holder.NotifyChildDestroyed(this);
+        }
+        else if (currentCell != null)
         {
             currentCell.isOccupied = false;
             currentCell.currentHolder = null;
@@ -41,7 +47,12 @@ public class Block : MonoBehaviour
 
     private void OnDisable()
     {
-        if (currentCell != null)
+        var holder = GetComponentInParent<BlockHolder>();
+        if (holder != null)
+        {
+            holder.NotifyChildDestroyed(this);
+        }
+        else if (currentCell != null)
         {
             currentCell.isOccupied = false;
             currentCell.currentHolder = null;
