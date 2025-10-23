@@ -251,7 +251,6 @@ public class GridManager : MonoBehaviour
     
         yield return new WaitForSeconds(0.1f);
     
-        // Pop toàn bộ block trong nhóm
         foreach (var block in blocks)
         {
             if (block != null)

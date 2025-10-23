@@ -16,7 +16,7 @@ public class Block : MonoBehaviour
     public float popPunchScale = 1.25f;
     public float popPunchDuration = 0.12f;
     public float popShrinkDuration = 0.18f;
-    public Material popParticleMaterial; // URP-compatible particle material (optional via Inspector)
+    public Material popParticleMaterial; // Optional URP particle material
     private static Material sDefaultURPParticleMat;
 
     public void findCurrentCell(GridCell cell)
@@ -30,6 +30,7 @@ public class Block : MonoBehaviour
         }
 
         // Always set holder and mark occupied
+        // Set occupancy and holder
         currentCell = cell;
         cell.isOccupied = true;
         var holder = GetComponentInParent<BlockHolder>();
@@ -70,13 +71,14 @@ public class Block : MonoBehaviour
         isPopping = true;
 
         // Only start coroutine if this component is active and enabled
+        // Run coroutine only if active/enabled
         if (isActiveAndEnabled && gameObject.activeInHierarchy)
         {
             StartCoroutine(PopAnimation());
         }
         else
         {
-            // Fallback: run immediate FX and destroy to avoid coroutine error
+            // If inactive, play FX and destroy immediately
             var am = AudioManager.instance;
             if (am != null) am.playDestroyBlock();
 
@@ -110,7 +112,7 @@ public class Block : MonoBehaviour
         {
             t += Time.deltaTime;
             float p = Mathf.Clamp01(t / punch);
-            float ease = 1f - Mathf.Pow(1f - p, 2f); // ease-out quad
+            float ease = 1f - Mathf.Pow(1f - p, 2f); // ease out (quadratic)
             float s = Mathf.Lerp(1f, popPunchScale, ease);
             transform.localScale = originScale * s;
             transform.localRotation = originRot * Quaternion.Euler(0f, 0f, randRot * ease);
@@ -122,7 +124,7 @@ public class Block : MonoBehaviour
         {
             t += Time.deltaTime;
             float p = Mathf.Clamp01(t / shrink);
-            float ease = p * p; // ease-in quad
+            float ease = p * p; // ease in (quadratic)
             float s = Mathf.Lerp(popPunchScale, 0f, ease);
             transform.localScale = originScale * s;
             transform.localRotation = originRot * Quaternion.Euler(0f, 0f, randRot * (1f - ease));

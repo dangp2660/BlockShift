@@ -19,7 +19,7 @@ public class UIManager : MonoBehaviour
     public GameObject LevelGO;
     public GameObject restartGO;
 
-    private bool isSoundOn = true; // Trạng thái âm thanh hiện tại
+    private bool isSoundOn = true; 
 
     private void Awake()
     {
@@ -38,7 +38,6 @@ public class UIManager : MonoBehaviour
     }
     private void Start()
     {
-        // Gán event cho button (nếu có)
         if (button != null)
         {
             Button btn = button.GetComponent<Button>();
@@ -46,10 +45,9 @@ public class UIManager : MonoBehaviour
                 btn.onClick.AddListener(ToggleSound);
         }
 
-        // Đặt sprite mặc định
         UpdateSoundIcon();
         SafeUpdateCoinsText();
-        if (restartGO != null) restartGO.SetActive(false); // hidden by default
+        if (restartGO != null) restartGO.SetActive(false);
     }
 
     private void Update()
@@ -99,7 +97,6 @@ public class UIManager : MonoBehaviour
         image.sprite = isSoundOn ? turnOnSound : turnOffSound;
     }
 
-    // Open Restart panel when game ends; ensure LV is active
     public void openRestart()
     {
         if (restartGO != null) restartGO.SetActive(true);

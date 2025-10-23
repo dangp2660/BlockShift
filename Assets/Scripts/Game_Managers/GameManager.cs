@@ -36,10 +36,8 @@ public class GameManager : MonoBehaviour
 
     public void nextLevel()
     {
-        // Ví dụ: khi qua level, bạn nhận thêm 100 coin
         StartCoroutine(IncreaseCoinsSmoothly(Coins + 15, 1f, () =>
         {
-            // Sau khi tăng coin xong, mới qua level
             currentScene++;
             SceneManager.LoadScene(currentScene);
         }));
